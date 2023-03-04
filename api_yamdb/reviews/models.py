@@ -1,4 +1,6 @@
 from django.db import models
+from datetime import datetime
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Categories(models.Model):
@@ -19,7 +21,9 @@ class Genres(models.Model):
 
 class Titles(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название произведения')
-    year = models.IntegerField(verbose_name='Год создания произведения')
+    year = models.IntegerField(verbose_name='Год создания произведения',
+                               validators=[MinValueValidator(1895),
+                                           MaxValueValidator(datetime.now().year)])
     description = models.TextField(verbose_name='Описание произведения')
     genre = models.ManyToManyField(
         Genres,
@@ -31,9 +35,14 @@ class Titles(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
-
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)])
     class Meta:
         verbose_name = 'Произведения'
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    score = models.IntegerField()
