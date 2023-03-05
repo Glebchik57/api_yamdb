@@ -26,16 +26,7 @@ class User(AbstractUser):
     )
 
     class Meta(AbstractUser.Meta):
-        pass
+        unique_together = ['username', 'email']
 
     def __str__(self):
         return self.username
-
-    def user(self):
-        return self.role == 'user'
-
-    def moderator(self):
-        return self.role == 'moderator'
-
-    def admin(self):
-        return self.role == 'admin'

@@ -1,5 +1,5 @@
-from django.shortcuts import get_list_or_404
-from django.shortcuts import render
+# from django.shortcuts import get_list_or_404
+# from django.shortcuts import render
 from reviews.models import User
 from rest_framework import viewsets
 # from .permission import User
