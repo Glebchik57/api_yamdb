@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 
-from reviews.models import Title, Review
-from .serializers import ReviewSerializer, CommentSerializer
+from reviews.models import Titles
+from .serializers import ReviewSerializer
 from .permissions import IsOwnerOrReadOnly
 # from django.shortcuts import get_list_or_404
 # from django.shortcuts import render
@@ -18,13 +18,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(
-            Title,
+            Titles,
             id=self.kwargs.get('title_id'))
         return title.reviews.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(
-            Title,
+            Titles,
             id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 
