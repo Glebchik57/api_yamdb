@@ -22,6 +22,7 @@ class Genres(models.Model):
 class Titles(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название произведения')
     year = models.IntegerField(verbose_name='Год создания произведения',
+                               default=0,
                                validators=[MinValueValidator(1895),
                                            MaxValueValidator(datetime.now().year)])
     description = models.TextField(verbose_name='Описание произведения')
@@ -36,7 +37,8 @@ class Titles(models.Model):
         null=True
     )
     rating = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)])
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+    default=0)
     class Meta:
         verbose_name = 'Произведения'
 
