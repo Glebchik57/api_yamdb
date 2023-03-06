@@ -1,15 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 
-from reviews.models import Titles, Review
-from .serializers import ReviewSerializer, CommentSerializer
+from reviews.models import Titles, Review, User
+from .serializers import ReviewSerializer, CommentSerializer, UserSerializer
 from .permissions import IsOwnerOrReadOnly
-# from django.shortcuts import get_list_or_404
-# from django.shortcuts import render
-from reviews.models import User
-from rest_framework import viewsets
-# from .permission import User
-from .serializers import UserSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
