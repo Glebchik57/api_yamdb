@@ -1,9 +1,46 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from rest_framework.pagination import LimitOffsetPagination
+from django_filters.rest_framework import DjangoFilterBackend
 
-from reviews.models import Titles, Review, User
-from .serializers import ReviewSerializer, CommentSerializer, UserSerializer
+from reviews.models import Titles, Review, User, Categories, Genres, Titles
+from .serializers import (
+    ReviewSerializer,
+    CommentSerializer,
+    UserSerializer,
+    CategoriesSerializer,
+    GenresSerializer,
+    TitleGetSerializer,
+    TitlePostPatchSerializer
+)
 from .permissions import IsOwnerOrReadOnly
+from .filters import TitleFilters
+
+
+class CategoriesViewSet(viewsets.ModelViewSet):
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    pagination_class = LimitOffsetPagination
+
+
+class GenresViewSet(viewsets.ModelViewSet):
+    queryset = Genres.objects.all()
+    serializer_class = GenresSerializer
+    pagination_class = LimitOffsetPagination
+
+
+class TitlesViewSet(viewsets.ModelViewSet):
+    queryset = Titles.objects.all()
+    serializer_class = TitlePostPatchSerializer
+    permission_classes = ()
+    pagination_class = LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilters
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return TitleGetSerializer
+        return TitlePostPatchSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

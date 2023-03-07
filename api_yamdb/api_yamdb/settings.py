@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'api',
     'rest_framework_simplejwt',
+    'django_filters',
     'reviews',
 ]
 
