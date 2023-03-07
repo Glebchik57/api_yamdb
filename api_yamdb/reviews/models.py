@@ -24,6 +24,7 @@ class User(AbstractUser):
     )
     email = models.EmailField(
         unique=True,
+        max_length=254,
     )
 
     class Meta(AbstractUser.Meta):
