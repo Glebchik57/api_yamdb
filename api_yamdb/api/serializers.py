@@ -29,6 +29,12 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
+class NewUserRegistrationSerializer(UserSerializer):
+
+    class Meta(UserSerializer.Meta):
+        read_only_fields = ['role']
+
+
 class UserRegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField(max_length=254)
@@ -37,7 +43,6 @@ class UserRegistrationSerializer(serializers.Serializer):
         fields = (
             'username', 'email',
         )
-        # model = User
 
 
 class TokenSerializer(serializers.Serializer):
