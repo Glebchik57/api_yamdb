@@ -9,3 +9,11 @@ from .serializers import UserSerializer
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+def sign_up(request):
+    pass
+
+
+def get_token(request):
+    pass
