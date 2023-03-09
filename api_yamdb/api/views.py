@@ -16,7 +16,8 @@ from .serializers import (
     CategoriesSerializer,
     GenresSerializer,
     TitleGetSerializer,
-    TitlePostPatchSerializer
+    TitlePostPatchSerializer,
+    NewUserRegistrationSerializer
 )
 from .permissions import IsOwnerOrReadOnly
 from .filters import TitleFilters
