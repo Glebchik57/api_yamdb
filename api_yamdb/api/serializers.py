@@ -1,7 +1,7 @@
-from rest_framework.relations import SlugRelatedField
+from django.db.models import Avg
 from rest_framework import serializers
-
-from reviews.models import User, Review, Comment, Titles, Categories, Genres
+from rest_framework.relations import SlugRelatedField
+from reviews.models import Categories, Comment, Genres, Review, Titles, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name', 'last_name', 'bio', 'role',
         )
         model = User
-    
+
     def validate_username(self, value):
         if value == 'me':
             raise serializers.ValidationError(
@@ -32,7 +32,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class NewUserRegistrationSerializer(UserSerializer):
-
     class Meta(UserSerializer.Meta):
         read_only_fields = ['role']
 
@@ -101,21 +100,25 @@ class TitlePostPatchSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug',
         queryset=Categories.objects.all())
-    rating = serializers.SerializerMethodField()
-
-    def get_rating(self, obj):
-        rating = Review.objects.filter(title__id=obj.id).annotate(
-            avg_rating=Avg('score'))
-        return rating
 
     class Meta:
         model = Titles
-        fields = ('name', 'year', 'description', 'genre', 'category')
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
 
 class TitleGetSerializer(serializers.ModelSerializer):
     genre = GenresSerializer(many=True, read_only=True)
     category = CategoriesSerializer(read_only=True)
+    rating = serializers.SerializerMethodField()
+
+    def get_rating(self, obj):
+        rating = Review.objects.filter(title__id=obj.id).annotate(
+            avg_rating=Avg('score'))
+        if rating:
+            pass
+        else:
+            rating = None
+        return rating
 
     class Meta:
         model = Titles

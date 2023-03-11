@@ -1,7 +1,8 @@
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
+
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
 CHOICES = (
     ('user', 'Пользователь'),
@@ -52,11 +53,14 @@ class Genres(models.Model):
 
 
 class Titles(models.Model):
-    name = models.CharField(max_length=256, verbose_name='Название произведения')
+    name = models.CharField(max_length=256,
+                            verbose_name='Название произведения')
     year = models.IntegerField(verbose_name='Год создания произведения',
                                default=0,
-                               validators=[MinValueValidator(1895),
-                                           MaxValueValidator(datetime.now().year)])
+                               validators=[
+                                   MinValueValidator(1895),
+                                   MaxValueValidator(datetime.now().year)
+                               ])
     description = models.TextField(verbose_name='Описание произведения')
     genre = models.ManyToManyField(
         Genres,
@@ -91,8 +95,9 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    score = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
-    created = models.DateTimeField(
+    score = models.IntegerField(validators=[MinValueValidator(0),
+                                            MaxValueValidator(100)])
+    pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
         db_index=True
@@ -114,7 +119,7 @@ class Comment(models.Model):
         related_name='comments'
     )
     text = models.TextField()
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
         db_index=True

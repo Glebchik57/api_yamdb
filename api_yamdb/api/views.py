@@ -1,49 +1,54 @@
-from rest_framework.decorators import action, api_view
-from rest_framework.response import Response
-from rest_framework import status, filters, permissions
-from rest_framework.pagination import LimitOffsetPagination
-from reviews.models import User
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.core.mail import send_mail
 from random import randint
 
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from reviews.models import Categories, Genres, Review, Titles, User
 
-from reviews.models import Titles, Review, User, Categories, Genres, Titles
-from .serializers import (
-    ReviewSerializer,
-    CommentSerializer,
-    CategoriesSerializer,
-    GenresSerializer,
-    TitleGetSerializer,
-    TitlePostPatchSerializer,
-    UserSerializer,
-    UserRegistrationSerializer,
-    NewUserRegistrationSerializer,
-    TokenSerializer
-)
-from .permissions import IsOwnerOrReadOnly, UserIsAdmin
 from .filters import TitleFilters
+from .permissions import IsOwnerOrReadOnly, OtherReadOnly, UserIsAdmin
+from .serializers import (CategoriesSerializer, CommentSerializer,
+                          GenresSerializer, NewUserRegistrationSerializer,
+                          ReviewSerializer, TitleGetSerializer,
+                          TitlePostPatchSerializer, TokenSerializer,
+                          UserRegistrationSerializer, UserSerializer)
 
 
-class CategoriesViewSet(viewsets.ModelViewSet):
+class CategoriesViewSet(mixins.CreateModelMixin,
+                        mixins.ListModelMixin,
+                        mixins.DestroyModelMixin,
+                        viewsets.GenericViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = (UserIsAdmin | OtherReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("name",)
+    lookup_field = 'slug'
 
 
-class GenresViewSet(viewsets.ModelViewSet):
+class GenresViewSet(mixins.CreateModelMixin,
+                    mixins.ListModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = (UserIsAdmin | OtherReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("name",)
+    lookup_field = 'slug'
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = TitlePostPatchSerializer
-    permission_classes = ()
+    permission_classes = (UserIsAdmin | OtherReadOnly,)
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilters

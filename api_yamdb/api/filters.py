@@ -3,13 +3,15 @@ from reviews.models import Titles
 
 
 class TitleFilters(filters.FilterSet):
-    category = filters.CharFilter(name='category_slug')
-    genre = filters.CharFilter(name='genre_slug')
-    year = filters.CharFilter(name='year')
+    name = filters.CharFilter(field_name='name')
+    category = filters.CharFilter(field_name='category__slug')
+    genre = filters.CharFilter(field_name='genre__slug')
+    year = filters.CharFilter(field_name='year')
 
     class Meta:
         model = Titles
         fields = [
+            'name',
             'year',
             'category',
             'genre'
