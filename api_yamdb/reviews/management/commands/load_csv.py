@@ -1,7 +1,7 @@
 from csv import DictReader
 from django.core.management import BaseCommand
 from reviews.models import (Categories, Genres,
-                            Titles, Review, Comment,
+                            Title, Review, Comment,
                             User)
 import os
 from django.conf import settings
@@ -9,7 +9,7 @@ from django.conf import settings
 MODEL_LST = {
     'category.csv': Categories,
     'genre.csv': Genres,
-    'titles.csv': Titles,
+    'titles.csv': Title,
     'comments.csv': Comment,
     'review.csv': Review,
     'users.csv': User
