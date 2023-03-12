@@ -1,6 +1,7 @@
 from random import randint
 
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, permissions, status, viewsets
@@ -8,7 +9,7 @@ from rest_framework.decorators import action, api_view
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Categories, Genres, Review, Titles, User
+from reviews.models import Categories, Genres, Review, Title, User
 
 from .filters import TitleFilters
 from .permissions import IsOwnerOrReadOnly, OtherReadOnly, UserIsAdmin
@@ -46,10 +47,7 @@ class GenresViewSet(mixins.CreateModelMixin,
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.all()
-    serializer_class = TitlePostPatchSerializer
     permission_classes = (UserIsAdmin | OtherReadOnly,)
-    pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilters
 
@@ -58,6 +56,9 @@ class TitlesViewSet(viewsets.ModelViewSet):
             return TitleGetSerializer
         return TitlePostPatchSerializer
 
+    def get_queryset(self):
+        return Title.objects.all().annotate(rating=Avg('reviews__score'))
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
@@ -65,13 +66,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(
-            Titles,
+            Title,
             id=self.kwargs.get('title_id'))
         return title.reviews.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(
-            Titles,
+            Title,
             id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 

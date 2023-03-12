@@ -52,7 +52,7 @@ class Genres(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(max_length=256,
                             verbose_name='Название произведения')
     year = models.IntegerField(verbose_name='Год создания произведения',
@@ -72,9 +72,6 @@ class Titles(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
-    rating = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
-        default=0)
 
     class Meta:
         verbose_name = 'Произведения'
@@ -91,17 +88,23 @@ class Review(models.Model):
     )
     text = models.TextField()
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='reviews'
     )
     score = models.IntegerField(validators=[MinValueValidator(0),
-                                            MaxValueValidator(100)])
+                                            MaxValueValidator(10)])
     pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
         db_index=True
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['title', 'author'],
+                                    name='qnique_title')
+        ]
 
     def __str__(self):
         return self.text
