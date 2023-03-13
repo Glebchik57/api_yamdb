@@ -6,10 +6,6 @@ from reviews.models import Categories, Comment, Genres, Review, Title, User
 
 class UserSerializer(serializers.ModelSerializer):
 
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
-
     class Meta:
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role',
@@ -23,20 +19,17 @@ class UserSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def validate_role(self, value):
-        if value in ['admin', 'user', 'moderator']:
-            return value
-        raise serializers.ValidationError(
-            'There is no such role'
-        )
-
 
 class NewUserRegistrationSerializer(UserSerializer):
+    """Сериализатор для самостоятельной регистрации новых пользователей."""
+
     class Meta(UserSerializer.Meta):
         read_only_fields = ['role']
 
 
 class UserRegistrationSerializer(serializers.Serializer):
+    """Сериализатор для повторной отправки кода на почту
+    для существующего пользователя."""
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField(max_length=254)
 
