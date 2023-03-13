@@ -1,8 +1,8 @@
-from datetime import datetime
-
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+from .validator import validate_year
 
 CHOICES = (
     ('user', 'Пользователь'),
@@ -57,10 +57,7 @@ class Title(models.Model):
                             verbose_name='Название произведения')
     year = models.IntegerField(verbose_name='Год создания произведения',
                                default=0,
-                               validators=[
-                                   MinValueValidator(1895),
-                                   MaxValueValidator(datetime.now().year)
-                               ])
+                               validators=[validate_year])
     description = models.TextField(verbose_name='Описание произведения')
     genre = models.ManyToManyField(
         Genres,
