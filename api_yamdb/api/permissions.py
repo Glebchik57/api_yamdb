@@ -6,17 +6,17 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     """Разрешение редактировать объект только владельцу"""
 
     def has_permission(self, request, view):
-        return any([request.method in permissions.SAFE_METHODS,
-                    request.user.is_authenticated])
+        return (request.method in permissions.SAFE_METHODS
+                or request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
-        return any([request.method in permissions.SAFE_METHODS,
-                    (request.user.is_authenticated and any([
-                        obj.author == request.user,
-                        request.user.role == 'moderator',
-                        request.user.role == 'admin']
-                    ))
-                    ])
+        return (request.method in permissions.SAFE_METHODS
+                or (request.user.is_authenticated and (
+                    obj.author == request.user
+                    or request.user.role == 'moderator'
+                    or request.user.role == 'admin')
+                 )
+                )
 
 
 class UserIsAdmin(IsAuthenticatedOrReadOnly):

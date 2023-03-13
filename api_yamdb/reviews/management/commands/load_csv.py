@@ -1,10 +1,9 @@
-from csv import DictReader
-from django.core.management import BaseCommand
-from reviews.models import (Categories, Genres,
-                            Title, Review, Comment,
-                            User)
 import os
+from csv import DictReader
+
 from django.conf import settings
+from django.core.management import BaseCommand
+from reviews.models import Categories, Comment, Genres, Review, Title, User
 
 MODEL_LST = {
     'category.csv': Categories,
