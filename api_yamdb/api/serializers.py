@@ -1,6 +1,5 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
 
 from reviews.models import Categories, Comment, Genres, Review, Title, User
 
@@ -59,7 +58,10 @@ class TokenSerializer(serializers.Serializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(read_only=True, slug_field='username')
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
     title = serializers.SlugRelatedField(slug_field='name', read_only=True)
 
     class Meta:
@@ -72,8 +74,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = self.context['view'].kwargs['title_id']
         author = self.context['request'].user
         if Review.objects.filter(author=author, title__id=title).exists():
-            raise serializers.ValidationError(['Вы уже оставили отзыв '
-                                               'этому произведению'])
+            raise serializers.ValidationError(
+                'Вы уже оставили отзыв этому произведению'
+            )
         return value
 
 
