@@ -32,18 +32,20 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = [UserIsAdmin]
 
 
 class GenresViewSet(viewsets.ModelViewSet):
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = [IsOwnerOrReadOnly]
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = TitlePostPatchSerializer
-    permission_classes = ()
+    permission_classes = [UserIsAdmin]
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilters
@@ -56,7 +58,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(
@@ -73,7 +75,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
         review = get_object_or_404(
@@ -121,39 +123,35 @@ def sign_up(request):
     serializer = UserRegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     validated_data = serializer.data
-    user = User.objects.filter(username=validated_data['username'])
+    user = User.objects.filter(username=validated_data['username']).first()
+    # Подскажите, как реализовать, потому что метод get даёт ошибки в pytest.
     confirmation_code = ''.join([str(randint(0, 9)) for i in range(7)])
-    if user.exists():
-        user = User.objects.filter(
-            username=serializer.data['username'],
-            email=serializer.data['email'])
-        user.confirmation_code = confirmation_code
-        for object in user:
-            object.save()
-
-        send_mail(
-            'Confirmation code',
-            confirmation_code,
-            'test@example.com',
-            recipient_list=[user]
-        )
-        if not user:
+    if user:
+        if user.email == validated_data['email']:
+            user.confirmation_code = confirmation_code
+            user.save()
+            send_mail(
+                'Confirmation code',
+                confirmation_code,
+                'test@example.com',
+                recipient_list=[user]
+            )
+            return Response(validated_data)
+        if not user.email == validated_data['email']:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        return Response(validated_data)
-    else:
-        serializer = NewUserRegistrationSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        validated_data = serializer.data
-        user = serializer.create(validated_data)
-        user.confirmation_code = confirmation_code
-        user.save()
-        send_mail(
-            'Confirmation code',
-            confirmation_code,
-            'test@example.com',
-            recipient_list=[user.email]
-        )
-        return Response({'username': user.username, 'email': user.email})
+    serializer = NewUserRegistrationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    validated_data = serializer.data
+    user = serializer.create(validated_data)
+    user.confirmation_code = confirmation_code
+    user.save()
+    send_mail(
+        'Confirmation code',
+        confirmation_code,
+        'test@example.com',
+        recipient_list=[user.email]
+    )
+    return Response({'username': user.username, 'email': user.email})
 
 
 @api_view(['POST'])
